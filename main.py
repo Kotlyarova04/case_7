@@ -48,7 +48,7 @@ with open('input.txt', encoding='utf-8') as f2:
                 min_value = queue[m_number]
         if min_value == float('inf'):       # тогда и только тогда, когда все автоматы из machines заняты
             print(min_value)
-            min_queue = machines        # ну типа, после_следующему циклу надо что-то перебирать (а раз все занято, то он один фиг переберет безрезультатно и пустит нас на следующую итерацию)
+            min_queue = machines        # ну типа, после_следующему циклу надо что-то перебирать (а раз все занято, то он один фиг переберет безрезультатно и пустит нас на следующую итерацию, после чего все очистится)
         for m_number in machines:
             if queue[m_number] == min_value:
                 min_queue.append(m_number)
