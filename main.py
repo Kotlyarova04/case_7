@@ -2,65 +2,68 @@ import datetime
 import math
 import random
 
+
+def calculate(n_liters):
+    n_liters = int(n_liters)
+    base_time = math.ceil(n_liters / 10)
+    if base_time > 1:
+        variation = random.randint(-1, 1)
+        base_time += variation
+    return base_time
+
+
 with open('filling_machines.txt', encoding='utf-8') as f1:
     filling_machines = {}
     for row in f1:
         machine = row.split()
-        filling_machines[machine[0]] = (int(machine[1]), list(machine[2:]))
+        filling_machines['Machine' + ' ' + machine[0]] = (int(machine[1]), list(machine[2:]))
+print(filling_machines)
 
 petrol80, petrol92, petrol95, petrol98 = 43.0, 49.0, 52.5, 67.2
-free_places = [i[0] for i in list(filling_machines.values())]
-#print(free_places)
+free_places = {}
+queue = {}
+for m_object in filling_machines.items():
+    free_places[m_object[0]] = m_object[1][0]
+    queue[m_object[0]] = 0
+print(free_places)
+print(queue)
 
 with open('input.txt', encoding='utf-8') as f2:
-    petrols = []
-    liters = []
-    f22 = f2.readlines()
-    for row in f22:
+    for row in f2:
         raw_request = row.split()
         concatenation = str(datetime.date.today()) + ' ' + raw_request[0]
-        # print(concatenation)
         raw_request[0] = str(datetime.datetime.strptime(concatenation, '%Y-%m-%d %H:%M'))       # str вероятно уберем, когда перейдем к расчетам
-        petrols.append(raw_request[2])
-        liters.append(raw_request[1])
+        raw_request.insert(2, str(calculate(raw_request[1])))
 
+        machines = []       # очищается после каждой итерации, список машин в которых есть нужный бензин
+        min_queue = []      # очищается после каждой итерации, задуман как список таких элементов из списка machines, очередь к которым минимальна (но в одном сценарии не следует такой логике и тупо совпадает со списком machines, см. inf)
+        for m_object in filling_machines.items():
+            if raw_request[3] in m_object[1][1]:
+                machines.append(m_object[0])
+        print(machines, 'список machines')
 
-def calculate(x):
-    base_time = math.ceil(x/10)
-    if base_time>1:
-        variation = random.randint(-1,1)
-        base_time += variation
-    return base_time
+        min_value = float('inf')
+        for m_number in machines:
+            if queue[m_number] < min_value and free_places[m_number] > 0:
+                min_value = queue[m_number]
+        if min_value == float('inf'):       # тогда и только тогда, когда все автоматы из machines заняты
+            print(min_value)
+            min_queue = machines        # ну типа, послеследующему циклу надо что-то перебирать (а раз все занято, то он один фиг переберет безрезультатно и пустит нас на следующую итерацию)
+        for m_number in machines:
+            if queue[m_number] == min_value:
+                min_queue.append(m_number)
 
-base_t = []
-for x in liters:
-    base_t.append(calculate(int(x)))
-
-
-cars = {}
-for i in range(len(f22)):
-    cars[i+1] = base_t[i]
-#print(cars)
-
-new_free = [0,0,0]
-for j in range(len(cars)):
-    if cars[j+1] > 0:
-        cars[j+1] -= 1
-    for i in petrols:
-        if i == 'АИ-80':
-            free_places[0] -= 1
-            new_free[0] += 1
-        if i == 'АИ-92':
-            if free_places[2] > 0:
-                if new_free[1] >= new_free[2]:
-                    new_free[2] += 1
-                    free_places[2] -= 1
-                else:
-                    new_free[1] += 1
-                    free_places[1] -= 1
+        for m_number in min_queue:
+            if free_places[m_number] > 0:
+                free_places[m_number] -= 1
+                queue[m_number] += 1
+                break
             else:
-                new_free[1] += 1
-                free_places[1] -= 1
-        if i == 'АИ-95' or i == 'АИ-98':
-            free_places[2] -= 1
-            new_free[2] += 1
+                continue
+
+        print(min_queue, 'список min_queue')
+        min_queue.clear()
+        machines.clear()
+        print(raw_request)
+        print(f'Текущие очереди: {queue}')
+        print(f'Текущие свободные места: {free_places}')
