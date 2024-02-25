@@ -94,3 +94,12 @@ with open('input.txt', encoding='utf-8') as f2:
 
         min_queue.clear()
         machines.clear()
+
+    departure_times = sort_dict(departure_times)
+    for key in departure_times:
+        free_places[departure_times[key][1]] += 1
+        queue[departure_times[key][1]] -= 1
+        obj_for_print = departure_times[key][0][-8:-3]
+        print(f'В {obj_for_print} клиент {key} заправил свой автомобиль и покинул АЗС.')
+        for i in filling_machines:
+            print(f'Автомат №{i[-1]} максимальная очередь: {filling_machines[i][0]} Марки бензина: {" ".join(filling_machines[i][1])} ->{"*" * queue[i]}')
