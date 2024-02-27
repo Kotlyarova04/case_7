@@ -52,10 +52,8 @@ with open('input.txt', encoding='utf-8') as f2:
         raw_request.insert(3, str(datetime.datetime.strptime(concatenation, '%Y-%m-%d %H:%M') + delta))
         client_key = cl_key(raw_request)
         departure_times = sort_dict(departure_times)
-
         petrol_grade = raw_request[4]
         liters_sold = int(raw_request[1])
-        sold_liters[petrol_grade] += liters_sold
 
         for key in departure_times:
             datetime_obj_departure = datetime.datetime.strptime(departure_times[key][0], '%Y-%m-%d %H:%M:%S')
@@ -90,12 +88,12 @@ with open('input.txt', encoding='utf-8') as f2:
         for m_number in machines:
             if queue[m_number] == min_value:
                 min_queue.append(m_number)
-
         for m_number in min_queue:
             if free_places[m_number] > 0:
                 free_places[m_number] -= 1
                 queue[m_number] += 1
                 departure_times[client_key] = [raw_request[3], m_number]
+                sold_liters[petrol_grade] += liters_sold
                 print(ru.IN, row.split()[0], ru.NEW, ru.CLIENT, client_key, ru.STAY, m_number[-1], sep = '')
                 for i in filling_machines:
                     print(ru.AUTOMAT, i[-1], ru.MAX_QUEUE, filling_machines[i][0], ru.PETROL, " ".join(filling_machines[i][1]), ' ->', "*" * queue[i], sep = '')
